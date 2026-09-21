@@ -1,0 +1,48 @@
+name: Creative Radar
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # 03:00 em Brasília
+  workflow_dispatch:
+    inputs:
+      anos:
+        description: "Anos de projeto (dois dígitos, separados por espaço). Vazio = últimos 4."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: creative-radar
+  cancel-in-progress: false
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 170
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Coletar projetos do SALIC
+        run: |
+          if [ -n "${{ github.event.inputs.anos }}" ]; then
+            python3 coletar_salic.py --anos ${{ github.event.inputs.anos }}
+          else
+            python3 coletar_salic.py
+          fi
+      - name: Copiar dicionário de sinônimos para a página
+        run: cp config/sinonimos.json docs/data/sinonimos.json
+      - name: Publicar dados no repositório
+        run: |
+          git config user.name "radar-bot"
+          git config user.email "radar-bot@users.noreply.github.com"
+          git add docs/data
+          if git diff --cached --quiet; then
+            echo "Sem mudanças."
+          else
+            git commit -m "Creative Radar: coleta SALIC de $(date -u +%Y-%m-%d)"
+            git push
+          fi
