@@ -1,0 +1,17 @@
+{
+  "_nota": "Cada chave é um termo que a curadoria digita; a lista traz o que o Radar também procura. Editar aqui e o workflow copia para docs/data.",
+  "hip hop": ["hip-hop", "hiphop", "rap", "breaking", "break dance", "b-boy", "b-girl", "grafite", "graffiti", "dj", "mc", "batalha de rima", "slam", "cultura urbana", "danca urbana", "funk"],
+  "periferia": ["periférico", "quebrada", "favela", "comunidade", "territórios vulneráveis", "zona leste", "zona norte", "zona sul", "baixada"],
+  "juventude": ["jovens", "adolescentes", "juvenil", "ensino médio"],
+  "infancia": ["crianças", "infantil", "primeira infância", "educação infantil"],
+  "musica": ["show", "concerto", "banda", "orquestra", "coral", "festival de música", "instrumental"],
+  "audiovisual": ["filme", "documentário", "curta", "longa", "série", "cinema", "web série"],
+  "teatro": ["artes cênicas", "espetáculo", "dramaturgia", "montagem", "circo", "dança"],
+  "patrimonio": ["restauro", "restauração", "tombado", "memória", "acervo", "museu", "sítio histórico"],
+  "clima": ["meio ambiente", "sustentabilidade", "regenerativo", "regeneração", "floresta", "amazônia", "biodiversidade", "reciclagem"],
+  "ciencia": ["divulgação científica", "científico", "pesquisa", "tecnologia", "inovação", "laboratório"],
+  "mulheres": ["mulher", "feminino", "gênero", "equidade de gênero"],
+  "povos tradicionais": ["indígena", "indígenas", "quilombola", "quilombo", "ribeirinho", "caiçara", "povos originários"],
+  "pessoa idosa": ["idosos", "terceira idade", "envelhecimento", "60+"],
+  "acessibilidade": ["pessoa com deficiência", "pcd", "libras", "audiodescrição", "inclusão"]
+}
