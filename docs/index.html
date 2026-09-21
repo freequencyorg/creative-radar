@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creative Radar · Freequency</title>
+<meta name="description" content="Busca nos projetos da Lei Rouanet em captação, com sinônimos e exportação para a ferramenta Cultura da Freequency.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0f1014;--panel:#15171c;--panel2:#1d2026;--panel3:#262a32;--line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.14);--line3:rgba(255,255,255,.26);--txt:#eceef2;--dim:#9298a8;--dim2:#6b7080;--accent:#c8f542;--accent-txt:#111;--accent-soft:rgba(200,245,66,.10);--red:#f56565;--green:#48bb78;--violet:#8b7cf7;--font:"Inter",-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{color:var(--txt);font-family:var(--font);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,ul{margin:0}ul{padding:0;list-style:none}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+a{color:var(--txt)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.k{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.k-accent{color:var(--accent)}
+.hdr{position:sticky;top:0;z-index:10;background:rgba(15,16,20,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hdr-in{max-width:1280px;margin-inline:auto;padding:12px 16px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+@media (min-width:720px){.hdr-in{padding-inline:34px}}
+.marca{display:flex;align-items:center;gap:16px}
+.wordmark{font-size:23px;font-weight:500;letter-spacing:-.035em;line-height:1;white-space:nowrap}
+.wordmark sup{font-size:.5em;font-weight:600;position:relative;top:-.15em}
+.hdr .k-accent{font-size:12px;letter-spacing:.22em;font-weight:700}
+.meta{font-size:11.5px;color:var(--dim);letter-spacing:.04em}
+.wrap{max-width:1280px;margin-inline:auto;padding:24px 16px 96px;display:flex;flex-direction:column;gap:18px}
+@media (min-width:720px){.wrap{padding-inline:34px}}
+.busca{display:grid;gap:10px}
+@media (min-width:860px){.busca{grid-template-columns:minmax(0,1fr) auto}}
+input[type=search],input[type=text],input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:2px;padding:12px 14px;color:var(--txt);font-size:16px;min-width:0}
+@media (min-width:720px){input[type=search],input[type=text],input[type=number],select{font-size:14.5px}}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:36px}
+select option{background:var(--panel2)}
+.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--txt);border-radius:26px;padding:11px 22px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;white-space:nowrap}
+.btn:hover{border-color:var(--line3)}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-txt)}
+.btn-sm{padding:7px 14px;font-size:10.5px;letter-spacing:.12em}
+.filtros{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-size:12px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line2);border-radius:999px;color:var(--dim);white-space:nowrap}
+.chip-accent{border-color:rgba(200,245,66,.45);color:var(--accent)}
+.chip-warn{border-color:rgba(245,101,101,.5);color:var(--red)}
+.chip-violet{border-color:rgba(139,124,247,.55);color:var(--violet)}
+.termo{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:5px 10px;border:1px solid var(--line2);border-radius:999px;color:var(--dim);cursor:pointer;user-select:none}
+.termo.on{background:var(--accent);border-color:var(--accent);color:var(--accent-txt);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line)}
+.barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.barra h2{font-size:15px;font-weight:600}
+.reg{display:grid;gap:10px 16px;padding:14px 16px;border-top:1px solid var(--line);grid-template-columns:auto minmax(0,1fr)}
+@media (min-width:900px){.reg{grid-template-columns:auto minmax(0,1fr) 230px}}
+.reg:first-child{border-top:0}
+.reg input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);margin-top:4px}
+.reg .t{font-size:15px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.reg .m{font-size:12.5px;color:var(--dim);overflow-wrap:anywhere}
+.reg .x{font-size:13px;color:var(--dim);line-height:1.55;margin-top:4px}
+.reg mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:2px}
+.lado{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--dim);grid-column:2}
+@media (min-width:900px){.lado{grid-column:3}}
+.lado b{color:var(--txt);font-size:15px;font-variant-numeric:tabular-nums}
+.trilho{height:5px;background:var(--panel3);overflow:hidden}.trilho i{display:block;height:100%;background:var(--txt)}
+.vazio{padding:32px 16px;text-align:center;color:var(--dim)}
+.aviso{border:1px dashed var(--line2);padding:12px 16px;font-size:13px;color:var(--dim);background:var(--panel)}
+.aviso b{color:var(--txt)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--accent);padding:11px 16px;font-size:13.5px;z-index:50;max-width:92vw}
+[hidden]{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (min-width:860px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:24px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--dim)}
+details summary{cursor:pointer}
+.rodape{max-width:1280px;margin-inline:auto;padding:0 16px 40px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in"><div class="marca"><span class="wordmark">freequency<sup>©</sup></span><span class="k k-accent">Creative Radar</span></div><span class="meta" id="meta">Carregando coleta…</span></div></header>
+<main class="wrap">
+  <div class="stats" id="stats" hidden></div>
+  <section class="busca">
+    <input type="search" id="q" placeholder="Buscar por palavra: hip hop, periferia, museu, documentário…" aria-label="Buscar" autocomplete="off">
+    <div class="chips"><label class="chip" style="cursor:pointer;gap:8px"><input type="checkbox" id="sin" checked style="accent-color:var(--accent)">Usar sinônimos</label><label class="chip" style="cursor:pointer;gap:8px"><input type="checkbox" id="indef" style="accent-color:var(--accent)">Incluir situação indefinida</label></div>
+  </section>
+  <div class="chips" id="termos" hidden></div>
+  <section class="filtros">
+    <div class="campo"><label for="f-uf">UF</label><select id="f-uf"><option value="">Todas</option></select></div>
+    <div class="campo"><label for="f-area">Área</label><select id="f-area"><option value="">Todas</option></select></div>
+    <div class="campo"><label for="f-seg">Segmento</label><select id="f-seg"><option value="">Todos</option></select></div>
+    <div class="campo"><label for="f-enq">Enquadramento</label><select id="f-enq"><option value="">Todos</option><option value="18">Art. 18 (dedução integral)</option><option value="26">Art. 26 (parcial)</option></select></div>
+    <div class="campo"><label for="f-saldo">Saldo mínimo (R$)</label><input type="number" id="f-saldo" min="0" step="10000" placeholder="0"></div>
+    <div class="campo"><label for="f-ord">Ordenar por</label><select id="f-ord"><option value="rel">Relevância</option><option value="saldo">Maior saldo</option><option value="prazo">Prazo mais próximo</option><option value="nome">Nome</option></select></div>
+  </section>
+  <section class="panel">
+    <div class="barra"><h2 id="titulo">Projetos</h2><div class="chips"><button type="button" class="btn btn-sm" id="b-todos">Selecionar visíveis</button><button type="button" class="btn btn-sm" id="b-limpar">Limpar seleção</button><button type="button" class="btn btn-sm" id="b-csv">Baixar CSV</button><button type="button" class="btn btn-sm btn-primary" id="b-json">Copiar JSON para o Cultura</button></div></div>
+    <div id="lista"></div>
+  </section>
+  <details class="aviso"><summary><b>Como ler o Creative Radar</b></summary><p style="margin-top:8px">Os dados vêm da API pública do SALIC (Ministério da Cultura), coletados de madrugada. "Captando" reúne as situações que citam captação autorizada e ainda não venceram; "indefinida" são situações que a regra não reconhece e a curadoria decide caso a caso. A busca procura no nome, resumo, objetivos, justificativa, sinopse, ficha técnica, área e segmento. Com sinônimos ligados, "hip hop" também procura rap, breaking, grafite e os demais termos do dicionário. O SALIC não traz causas, público e contrapartidas: isso vem do cadastro do proponente na ferramenta Cultura.</p></details>
+</main>
+<footer class="rodape"><span>Global creative cooperative</span><span id="fonte"></span></footer>
+<div class="toast" id="toast" hidden role="status"></div>
+<script>
+(function () {
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const brl = n => n >= 1e6 ? 'R$ ' + (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi' : n >= 1e3 ? 'R$ ' + Math.round(n / 1e3).toLocaleString('pt-BR') + ' mil' : 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+const dataBR = iso => iso && /^\d{4}-\d{2}-\d{2}/.test(iso) ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '';
+const CAMPOS = [['nome', 3], ['segmento', 2], ['area', 1], ['resumo', 1], ['objetivos', 1], ['justificativa', 1], ['sinopse', 1], ['ficha_tecnica', 1], ['proponente', 1], ['municipio', 1]];
+let dados = [], sinonimos = {}, meta = null, termosAtivos = new Map(), selecionados = new Set(), visiveis = [];
+let toastTimer;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 4500); }
+
+async function carregar() {
+  try {
+    const [m, d, s] = await Promise.all([fetch('data/meta.json').then(r => r.json()), fetch('data/salic-captacao.json').then(r => r.json()), fetch('data/sinonimos.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+    meta = m; dados = d; sinonimos = s || {};
+    dados.forEach(p => { p._n = {}; CAMPOS.forEach(([c]) => { p._n[c] = norm(p[c]); }); });
+    $('#meta').textContent = 'Coleta de ' + new Date(m.coletado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) + ' · ' + m.captando.toLocaleString('pt-BR') + ' projetos captando · anos ' + m.anos_projeto.join(', ');
+    $('#fonte').textContent = m.fonte;
+    $('#stats').hidden = false;
+    $('#stats').innerHTML = '<div class="stat"><b>' + m.captando.toLocaleString('pt-BR') + '</b><span>projetos captando</span></div><div class="stat"><b>' + m.indefinidos.toLocaleString('pt-BR') + '</b><span>situação indefinida</span></div><div class="stat"><b>' + brl(dados.filter(p => p.classe === 'captando').reduce((s, p) => s + (p.saldo || 0), 0)) + '</b><span>saldo a captar somado</span></div><div class="stat"><b>' + m.lidos.toLocaleString('pt-BR') + '</b><span>registros lidos no SALIC</span></div>';
+    const opts = (id, chave) => { const vals = Array.from(new Set(dados.map(p => p[chave]).filter(Boolean))).sort((a, b) => String(a).localeCompare(String(b), 'pt-BR')); $(id).innerHTML += vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); };
+    opts('#f-uf', 'UF'); opts('#f-area', 'area'); opts('#f-seg', 'segmento');
+    lerURL(); render();
+  } catch (e) {
+    $('#meta').textContent = 'Sem dados ainda. Rode o workflow "Creative Radar" no GitHub para a primeira coleta.';
+    $('#lista').innerHTML = '<div class="vazio">A pasta data/ ainda não tem a coleta. Depois do primeiro workflow, esta página passa a funcionar.</div>';
+  }
+}
+function lerURL() { const u = new URL(location.href); if (u.searchParams.get('q')) $('#q').value = u.searchParams.get('q'); ['uf', 'area', 'seg', 'enq', 'saldo', 'ord'].forEach(k => { const v = u.searchParams.get(k); if (v) $('#f-' + k).value = v; }); if (u.searchParams.get('indef') === '1') $('#indef').checked = true; }
+function gravarURL() { const u = new URL(location.href); const set = (k, v) => v ? u.searchParams.set(k, v) : u.searchParams.delete(k); set('q', $('#q').value.trim()); ['uf', 'area', 'seg', 'enq', 'saldo', 'ord'].forEach(k => set(k, $('#f-' + k).value)); set('indef', $('#indef').checked ? '1' : ''); history.replaceState(null, '', u); }
+function termosDaBusca() {
+  const q = norm($('#q').value).trim(); if (!q) return [];
+  const base = [q]; const usarSin = $('#sin').checked;
+  const extras = usarSin && sinonimos[q] ? sinonimos[q] : [];
+  if (usarSin && !sinonimos[q]) { for (const [k, lista] of Object.entries(sinonimos)) { if (k.startsWith('_')) continue; if (norm(k) === q || lista.map(norm).includes(q)) { base.push(norm(k)); lista.forEach(x => base.push(norm(x))); } } }
+  extras.forEach(x => base.push(norm(x)));
+  return Array.from(new Set(base.filter(Boolean)));
+}
+function renderTermos(termos) {
+  const box = $('#termos'); if (termos.length <= 1) { box.hidden = true; return; }
+  box.hidden = false; box.innerHTML = '<span class="k">Procurando também</span>' + termos.map(t => '<span class="termo' + (termosAtivos.get(t) === false ? '' : ' on') + '" data-t="' + esc(t) + '">' + esc(t) + '</span>').join('');
+}
+function pontuar(p, termos) {
+  let score = 0; const achados = new Set();
+  for (const t of termos) { if (termosAtivos.get(t) === false) continue; const re = t.length <= 3 ? new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b') : null; for (const [c, peso] of CAMPOS) { const v = p._n[c]; if (!v) continue; const hit = re ? re.test(v) : v.includes(t); if (hit) { score += peso; achados.add(t); } } }
+  return { score, achados };
+}
+function destacar(txt, termos) { if (!txt) return ''; let h = esc(txt); const ativos = termos.filter(t => termosAtivos.get(t) !== false && t.length > 2); if (!ativos.length) return h; const re = new RegExp('(' + ativos.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi'); return h.replace(/[̀-ͯ]/g, '').replace(re, '<mark>$1</mark>'); }
+function render() {
+  const termos = termosDaBusca(); renderTermos(termos); gravarURL();
+  const uf = $('#f-uf').value, area = $('#f-area').value, seg = $('#f-seg').value, enq = $('#f-enq').value, saldoMin = Number($('#f-saldo').value) || 0, ord = $('#f-ord').value, indef = $('#indef').checked;
+  let lista = dados.filter(p => (indef || p.classe === 'captando') && (!uf || p.UF === uf) && (!area || p.area === area) && (!seg || p.segmento === seg) && (!enq || String(p.enquadramento || '').includes(enq)) && (!saldoMin || (p.saldo || 0) >= saldoMin));
+  let itens = lista.map(p => Object.assign({ p }, pontuar(p, termos)));
+  if (termos.length) itens = itens.filter(x => x.score > 0);
+  itens.sort((a, b) => ord === 'saldo' ? (b.p.saldo || 0) - (a.p.saldo || 0) : ord === 'prazo' ? String(a.p.data_termino || '9').localeCompare(String(b.p.data_termino || '9')) : ord === 'nome' ? String(a.p.nome).localeCompare(String(b.p.nome), 'pt-BR') : b.score - a.score || (b.p.saldo || 0) - (a.p.saldo || 0));
+  visiveis = itens.map(x => x.p.PRONAC);
+  $('#titulo').textContent = itens.length.toLocaleString('pt-BR') + (itens.length === 1 ? ' projeto' : ' projetos') + (termos.length ? ' para "' + $('#q').value.trim() + '"' : '') + (selecionados.size ? ' · ' + selecionados.size + ' selecionados' : '');
+  const mostrar = itens.slice(0, 300);
+  $('#lista').innerHTML = mostrar.map(({ p, achados }) => {
+    const aprov = Number(p.valor_aprovado) || 0, capt = Number(p.valor_captado) || 0, pct = aprov ? Math.min(100, Math.round(100 * capt / aprov)) : 0;
+    const texto = [p.resumo, p.objetivos, p.justificativa].filter(Boolean).join(' ').slice(0, 420);
+    return '<div class="reg"><input type="checkbox" data-sel="' + esc(p.PRONAC) + '"' + (selecionados.has(p.PRONAC) ? ' checked' : '') + ' aria-label="Selecionar"><div><div class="t">' + destacar(p.nome, termos) + '</div><div class="m">' + esc([p.proponente, [p.municipio, p.UF].filter(Boolean).join('/'), 'PRONAC ' + p.PRONAC, p.enquadramento].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="chips" style="margin-top:6px">' + (p.classe === 'captando' ? '<span class="chip chip-accent">Captando</span>' : '<span class="chip chip-warn">Situação indefinida</span>') + (p.area ? '<span class="chip">' + esc(p.area) + '</span>' : '') + (p.segmento ? '<span class="chip">' + esc(p.segmento) + '</span>' : '') + (achados.size ? '<span class="chip chip-violet">' + achados.size + (achados.size === 1 ? ' termo' : ' termos') + '</span>' : '') + '</div>' +
+      (texto ? '<div class="x">' + destacar(texto, termos) + (texto.length >= 420 ? '…' : '') + '</div>' : '') + '<div class="m" style="margin-top:6px">' + esc(p.situacao || '') + '</div></div>' +
+      '<div class="lado"><b>' + (p.saldo != null ? brl(p.saldo) : 'saldo não informado') + '</b><span>' + (aprov ? esc(brl(capt) + ' captados de ' + brl(aprov)) : 'valor aprovado não informado') + '</span><span class="trilho"><i style="width:' + pct + '%"></i></span>' + (p.data_termino ? '<span>Execução até ' + dataBR(p.data_termino) + '</span>' : '') + '<a class="m" href="https://api.salic.cultura.gov.br/api/v1/projetos/' + esc(p.PRONAC) + '" target="_blank" rel="noopener noreferrer">Registro no SALIC</a></div></div>';
+  }).join('') || '<div class="vazio">Nenhum projeto com esses filtros.</div>';
+  if (itens.length > 300) $('#lista').insertAdjacentHTML('beforeend', '<div class="vazio">Mostrando 300 de ' + itens.length + '. Refine a busca para ver o restante.</div>');
+}
+function exportar(pronacs) { const set = new Set(pronacs); return dados.filter(p => set.has(p.PRONAC)).map(p => { const o = Object.assign({}, p); delete o._n; delete o.classe; delete o.fonte; delete o.saldo; return o; }); }
+async function copiarJSON() {
+  const alvo = selecionados.size ? Array.from(selecionados) : visiveis.slice(0, 200);
+  if (!alvo.length) { toast('Nada para copiar.'); return; }
+  const txt = JSON.stringify({ _embedded: { projetos: exportar(alvo) }, count: alvo.length, total: alvo.length, fonte: 'Creative Radar', coletado_em: meta && meta.coletado_em });
+  try { await navigator.clipboard.writeText(txt); toast(alvo.length + (alvo.length === 1 ? ' projeto copiado' : ' projetos copiados') + '. Cole em Curadoria › Projetos › Importar do SALIC.'); }
+  catch (_) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('JSON copiado.'); }
+}
+function baixarCSV() {
+  const alvo = selecionados.size ? Array.from(selecionados) : visiveis; if (!alvo.length) { toast('Nada para exportar.'); return; }
+  const campo = v => { const s = String(v == null ? '' : v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const cols = ['PRONAC', 'nome', 'proponente', 'UF', 'municipio', 'area', 'segmento', 'enquadramento', 'situacao', 'classe', 'valor_aprovado', 'valor_captado', 'saldo', 'data_inicio', 'data_termino', 'resumo'];
+  const set = new Set(alvo); const linhas = dados.filter(p => set.has(p.PRONAC)).map(p => cols.map(c => campo(p[c])).join(';'));
+  const blob = new Blob(['﻿' + cols.join(';') + '\n' + linhas.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'radar-salic-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+let deb; $('#q').addEventListener('input', () => { clearTimeout(deb); deb = setTimeout(() => { termosAtivos = new Map(); render(); }, 180); });
+['#f-uf', '#f-area', '#f-seg', '#f-enq', '#f-ord', '#sin', '#indef'].forEach(s => $(s).addEventListener('change', render));
+$('#f-saldo').addEventListener('input', () => { clearTimeout(deb); deb = setTimeout(render, 250); });
+$('#termos').addEventListener('click', e => { const t = e.target.closest('.termo'); if (!t) return; termosAtivos.set(t.dataset.t, termosAtivos.get(t.dataset.t) === false); render(); });
+$('#lista').addEventListener('change', e => { const el = e.target; if (!el.dataset.sel) return; if (el.checked) selecionados.add(el.dataset.sel); else selecionados.delete(el.dataset.sel); $('#titulo').textContent = $('#titulo').textContent.replace(/ · \d+ selecionados$/, '') + (selecionados.size ? ' · ' + selecionados.size + ' selecionados' : ''); });
+$('#b-todos').addEventListener('click', () => { visiveis.slice(0, 300).forEach(id => selecionados.add(id)); render(); });
+$('#b-limpar').addEventListener('click', () => { selecionados.clear(); render(); });
+$('#b-json').addEventListener('click', copiarJSON);
+$('#b-csv').addEventListener('click', baixarCSV);
+carregar();
+})();
+</script>
+</body>
+</html>
