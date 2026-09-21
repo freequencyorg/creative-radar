@@ -1,0 +1,18 @@
+{
+  "_nota": "Padrões comparados com o texto da situação do SALIC, sem acentos e em minúsculas. 'incluir' marca captando; 'excluir' descarta. Situações que não batem em nenhum ficam como 'indefinido' para a curadoria decidir. A distribuição real aparece em docs/data/meta.json.",
+  "incluir": [
+    "captacao"
+  ],
+  "excluir": [
+    "encerr",
+    "arquiv",
+    "indeferid",
+    "prestacao de contas",
+    "inabilit",
+    "cancel",
+    "desist",
+    "reprovad",
+    "nao aprovado",
+    "recurso administrativo"
+  ]
+}
