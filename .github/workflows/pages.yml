@@ -1,0 +1,45 @@
+name: Publicar página
+
+# Publica a pasta docs no GitHub Pages sem nova coleta: reaproveita os dados
+# da última coleta já publicada. Roda a cada mudança em docs/ ou no dicionário.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "config/sinonimos.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: creative-radar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reaproveitar a última coleta publicada
+        run: |
+          mkdir -p docs/data
+          for f in meta.json salic-captacao.json; do
+            curl -fsSL --retry 3 "https://radar.freequency.org/data/$f" -o "docs/data/$f" \
+              || curl -fsSL --retry 3 "https://freequencyorg.github.io/creative-radar/data/$f" -o "docs/data/$f"
+          done
+          cp config/sinonimos.json docs/data/sinonimos.json
+          ls -la docs/data
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4
