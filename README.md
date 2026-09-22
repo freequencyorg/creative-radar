@@ -8,7 +8,9 @@ Radar da Freequency para projetos incentivados, no ar em https://radar.freequenc
 - `config/situacoes.json`: padrões de inclusão e exclusão da classificação. A distribuição real das situações aparece em `meta.json` a cada coleta, para ajustar os padrões.
 - `config/sinonimos.json`: dicionário que a busca usa ("hip hop" também procura rap, breaking, grafite…). Editar aqui.
 - `.github/workflows/radar.yml` (chega como `workflow-radar.yml` na raiz quando a pasta vem pelo Claude; o `subir.sh` move para o lugar): roda todo dia às 03:00 (Brasília) e sob demanda, e publica a pasta `docs` com os dados novos direto no GitHub Pages. Os dados não são commitados: o repositório não cresce a cada coleta e não há limite de tamanho por arquivo.
-- `docs/index.html`: a página do Creative Radar, na identidade Freequency. Lê `data/meta.json`, `data/salic-captacao.json` e `data/sinonimos.json` ao lado dela, no GitHub Pages.
+- `docs/index.html`: a home pública (Sou incentivador / Sou proponente), que leva à ferramenta Cultura. Mostra os números da última coleta.
+- `docs/curadoria/index.html`: a busca do Creative Radar, área da curadoria (radar.freequency.org/curadoria). Lê `../data/meta.json`, `../data/salic-captacao.json` e `../data/sinonimos.json`.
+- `.github/workflows/pages.yml`: publica a pasta `docs` no Pages a cada mudança em `docs/` ou no dicionário, reaproveitando a última coleta já publicada (sem nova coleta).
 - `scripts/api_simulada.py`: API falsa para testar o coletor sem internet.
 
 ## Como colocar no ar (uma vez)
