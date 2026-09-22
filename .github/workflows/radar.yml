@@ -10,8 +10,12 @@ on:
         required: false
         default: ""
 
+# Os dados não entram mais no git: a coleta vira um artefato do Pages e é publicada direto.
+# Assim o repositório não cresce a cada madrugada e não há limite de 100 MB por arquivo.
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: creative-radar
@@ -21,6 +25,9 @@ jobs:
   coletar:
     runs-on: ubuntu-latest
     timeout-minutes: 170
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,14 +42,11 @@ jobs:
           fi
       - name: Copiar dicionário de sinônimos para a página
         run: cp config/sinonimos.json docs/data/sinonimos.json
-      - name: Publicar dados no repositório
-        run: |
-          git config user.name "radar-bot"
-          git config user.email "radar-bot@users.noreply.github.com"
-          git add docs/data
-          if git diff --cached --quiet; then
-            echo "Sem mudanças."
-          else
-            git commit -m "Creative Radar: coleta SALIC de $(date -u +%Y-%m-%d)"
-            git push
-          fi
+      - name: Resumo da coleta
+        run: python3 -c "import json;m=json.load(open('docs/data/meta.json'));print({k:m.get(k) for k in ('coletado_em','lidos','retidos','captando','indefinidos','erros')})"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4
