@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Freequency Cultura</title>
-<meta name="description" content="Projetos incentivados sob medida para a sua marca. A curadoria Freequency lê a ficha da marca, pesquisa na base de projetos aprovados em leis de incentivo e propõe.">
+<meta name="description" content="A curadoria Freequency lê a ficha da marca e responde com uma proposta escrita: poucos projetos aprovados em leis de incentivo, cada um com o argumento de por que ele cabe na história da marca.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
@@ -25,10 +25,12 @@ a{color:var(--txt)}
 .wordmark sup{font-size:.5em;font-weight:600;position:relative;top:-.15em}
 .hdr .k-accent{font-size:12px;letter-spacing:.22em;font-weight:700}
 .hdr a.mail{font-size:12px;color:var(--dim);text-decoration:none;letter-spacing:.04em}
-.hero{background:radial-gradient(ellipse at 50% 0%,var(--hero-from) 0%,var(--bg) 62%);padding:72px 16px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:26px}
-.hero .wordmark{font-size:clamp(46px,9vw,78px);letter-spacing:-.045em}
-.hero .frase{font-size:clamp(11px,1.6vw,13px);font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);line-height:1.9;max-width:36em}
-.hero .frase em{color:var(--accent);font-style:normal}
+.hero{background:radial-gradient(ellipse at 50% 0%,var(--hero-from) 0%,var(--bg) 62%);padding:84px 0 48px}
+.hero-in{max-width:1180px;margin-inline:auto;padding-inline:16px;display:flex;flex-direction:column;gap:22px}
+@media (min-width:720px){.hero-in{padding-inline:34px}}
+.hero h1{font-size:clamp(32px,5.6vw,64px);font-weight:600;letter-spacing:-.035em;line-height:1.06;max-width:15em;text-wrap:balance}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p{font-size:clamp(16px,1.9vw,19px);line-height:1.65;color:var(--dim);max-width:44em}
 .wrap{max-width:1180px;margin-inline:auto;padding:24px 16px 96px;display:flex;flex-direction:column;gap:56px}
 @media (min-width:720px){.wrap{padding-inline:34px}}
 .entradas{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
@@ -55,71 +57,90 @@ a{color:var(--txt)}
 .passo .k{color:var(--accent)}
 .passo p{font-size:14px;line-height:1.6;color:var(--dim)}
 .passo p b{color:var(--txt);font-weight:600}
-.base{border:1px solid var(--accent-line);background:var(--accent-soft);padding:18px 20px;display:flex;flex-wrap:wrap;gap:14px 34px;align-items:baseline;justify-content:space-between}
-.base b{font-size:30px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.base .item{display:flex;flex-direction:column;gap:2px}
-.base .item span{font-size:12px;color:var(--dim)}
-.base .txt{font-size:13.5px;color:var(--dim);max-width:46ch;line-height:1.55}
-.base .txt b{font-size:inherit;color:var(--txt);font-weight:600;letter-spacing:0}
+.base{display:flex;flex-direction:column;gap:12px}
+.base-nums{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (min-width:640px){.base-nums{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.base-nums div{background:var(--panel);padding:20px 20px 22px;display:flex;flex-direction:column;gap:6px}
+.base-nums b{font-size:clamp(28px,3.6vw,38px);font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.base-nums div:last-child b{color:var(--accent)}
+.base-nums span{font-size:13px;color:var(--dim);line-height:1.45}
+.base .fonte{font-size:12px;color:var(--dim2)}
+.trecho{border-left:2px solid var(--accent);background:var(--panel);padding:24px 24px 22px;display:flex;flex-direction:column;gap:14px;max-width:780px}
+.trecho .meta{font-size:12px;letter-spacing:.06em;color:var(--dim2)}
+.trecho blockquote{margin:0;font-size:clamp(17px,2vw,20px);line-height:1.6;color:var(--txt)}
+.trecho .rotulo{font-size:12px;color:var(--dim2)}
 .rodape{max-width:1180px;margin-inline:auto;padding:0 16px 40px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between;align-items:center}
 @media (min-width:720px){.rodape{padding-inline:34px}}
 .rodape a{color:var(--dim2);text-decoration:none}
 .rodape a.mail{letter-spacing:0;text-transform:none;font-size:12px}
 .rodape a.discreto{opacity:.7}
 .rodape a:hover{color:var(--dim)}
+a,button{-webkit-tap-highlight-color:transparent}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header class="hdr"><div class="hdr-in"><div class="marca"><a class="wordmark" href="https://freequency.org">freequency<sup>©</sup></a><span class="k k-accent">Cultura</span></div><a class="mail" href="mailto:info@freequency.org">info@freequency.org</a></div></header>
 
-<section class="hero">
-  <span class="wordmark" aria-hidden="true">freequency<sup>©</sup></span>
-  <h1 class="frase">Projetos incentivados <em>sob medida</em> para a sua marca. A curadoria Freequency lê a ficha, pesquisa e propõe.</h1>
-</section>
+<section class="hero"><div class="hero-in">
+  <span class="k k-accent">Leis de incentivo · curadoria</span>
+  <h1>Que obra a sua marca <em>assinaria</em> com o imposto que ela já paga?</h1>
+  <p>A curadoria Freequency lê a ficha da marca e responde com uma proposta escrita: poucos projetos aprovados em leis de incentivo, cada um com o argumento de por que ele cabe na história da marca.</p>
+</div></section>
 
 <main class="wrap">
   <section class="entradas" aria-label="Entradas">
     <article class="entrada">
       <span class="k k-accent">Sou incentivador</span>
-      <h2>Sua marca diz o que precisa. A curadoria devolve poucos projetos, com argumento.</h2>
-      <p>Uma ficha padrão organiza mecanismos, verba, território, segmentos e o que a marca quer comunicar. A partir dela, cruzamos a base de projetos aprovados em leis de incentivo e devolvemos uma seleção comentada, lida à luz do posicionamento, do território e do calendário da marca.</p>
+      <h2>Uma proposta escrita para a sua marca, com poucos projetos e o argumento de cada um.</h2>
+      <p>A ficha leva uns dez minutos e pergunta o que um redator perguntaria antes de começar: o que a marca quer comunicar, em que territórios quer estar, com qual verba e até quando decide. A partir dela, a curadoria percorre a base de projetos aprovados e escreve a proposta, conversando com os proponentes quando o encaixe pede.</p>
       <a class="btn btn-primary" id="l-incentivador" href="https://claude.ai/artifact/XHQMbvXQqi1RqYV3EaUC6N?papel=incentivador#incentivador">Preencher a ficha</a>
     </article>
     <article class="entrada">
       <span class="k k-accent">Sou proponente</span>
-      <h2>Cadastre o projeto aprovado. Ele entra na base que a curadoria consulta a cada ficha de marca.</h2>
-      <p>O cadastro descreve o projeto do jeito que uma marca lê: mecanismo, situação, território, público, contrapartidas e valores. Quando uma ficha conversa com o projeto, a curadoria o inclui na proposta e avisa o proponente.</p>
+      <h2>Apresente o projeto aprovado com a clareza de que uma marca precisa para decidir.</h2>
+      <p>Mecanismo, território, público, contrapartidas e valores ficam numa ficha que a curadoria consulta a cada nova marca. Quando há encaixe, o projeto entra na proposta com um argumento escrito por nós, e a curadoria avisa você.</p>
       <a class="btn" id="l-proponente" href="https://claude.ai/artifact/XHQMbvXQqi1RqYV3EaUC6N?papel=proponente#proponente">Cadastrar projeto</a>
     </article>
   </section>
-  <p class="nota" style="margin-top:-38px">Nesta fase, a ficha e o cadastro ficam em uma área com acesso por convite. Se o link pedir acesso, escreva para <a href="mailto:info@freequency.org">info@freequency.org</a> e enviamos o convite no mesmo dia.</p>
+  <p class="nota" style="margin-top:-38px">A ficha e o cadastro funcionam por convite nesta fase. Se o link pedir acesso, escreva para <a href="mailto:info@freequency.org">info@freequency.org</a> e enviamos o convite no mesmo dia.</p>
 
   <section class="sec" aria-labelledby="t-como">
-    <span class="k">Como funciona</span>
-    <h2 class="lead" id="t-como">Três passos, com gente lendo no meio.</h2>
+    <h2 class="k" id="t-como">Processo</h2>
     <div class="passos">
-      <div class="passo"><span class="k">01 · Ficha</span><p><b>A marca preenche a ficha padrão.</b> Mecanismos, verba, território, segmentos e o que quer comunicar.</p></div>
-      <div class="passo"><span class="k">02 · Pesquisa e curadoria</span><p><b>Cruzamos a ficha com a base.</b> Projetos cadastrados por proponentes e a coleta diária dos registros públicos, lidos por critério e por gente.</p></div>
-      <div class="passo"><span class="k">03 · Proposta</span><p><b>A marca recebe uma seleção comentada.</b> Poucos projetos, com argumento, valor sugerido e próximos passos. A marca responde na própria área dela.</p></div>
+      <div class="passo"><span class="k">01 · Ficha</span><p>A marca descreve intenção, território, verba e prazo de decisão.</p></div>
+      <div class="passo"><span class="k">02 · Leitura</span><p>A curadoria cruza a ficha com a base coletada toda madrugada nos registros públicos e com os cadastros de proponentes, e lê cada candidato por inteiro: resumo, ficha técnica e histórico de captação.</p></div>
+      <div class="passo"><span class="k">03 · Proposta</span><p>A marca recebe de três a cinco projetos, com argumento, valor sugerido e próximos passos, e responde projeto a projeto na própria área.</p></div>
     </div>
   </section>
 
-  <section class="base" id="base" hidden aria-live="polite">
-    <div class="item"><b id="b-capt">–</b><span>projetos da Lei Rouanet em captação, hoje</span></div>
-    <div class="item"><b id="b-saldo">–</b><span>saldo a captar somado</span></div>
-    <p class="txt">A base é coletada todas as madrugadas nos registros públicos do SALIC e cruzada com os cadastros de proponentes. <b id="b-data"></b></p>
+  <section class="base" id="base" hidden aria-live="polite" aria-label="Números da base">
+    <div class="base-nums">
+      <div><b id="b-lidos">–</b><span>registros consultados no SALIC a cada madrugada</span></div>
+      <div><b id="b-capt">–</b><span>em captação hoje</span></div>
+      <div><b>3 a 5</b><span>projetos por proposta</span></div>
+    </div>
+    <p class="fonte" id="b-data"></p>
+  </section>
+
+  <section class="sec" aria-labelledby="t-trecho">
+    <h2 class="k" id="t-trecho">Trecho de proposta</h2>
+    <figure class="trecho" style="margin:0">
+      <span class="meta">Oficinas de percussão para adolescentes · Lei Rouanet · aporte sugerido R$ 200 mil</span>
+      <blockquote>A rede tem lojas na zona leste e pouca presença cultural no bairro além das vitrines. As oficinas de percussão acontecem a duas quadras de três delas, com adolescentes que já circulam por ali. A contrapartida que sugerimos é concreta: as apresentações de fim de semestre no estacionamento da loja maior, com a equipe da loja envolvida na produção.</blockquote>
+      <figcaption class="rotulo">Exemplo ilustrativo, com marca e projeto fictícios.</figcaption>
+    </figure>
   </section>
 
   <section class="sec" aria-labelledby="t-cur">
     <span class="k">O que a curadoria procura</span>
-    <h2 class="lead" id="t-cur">Curadoria tem repertório e tem lado.</h2>
-    <p class="copy">A Freequency vem de projetos como <b>A Onda do Break</b>, o <b>mural dos OSGEMEOS em Düsseldorf</b> e <b>Hermeto x Puma</b>. São trabalhos em que a marca entra como parte da obra, com tempo de maturação e circulação própria. É esse olhar que aplicamos à ficha: procuramos projetos autorais, com raiz no território e capacidade de gerar conteúdo e conversa por mais de uma temporada.</p>
+    <h2 class="lead" id="t-cur">O que faz um projeto incentivado continuar na memória de quem esteve lá?</h2>
+    <p class="copy">É a pergunta que guia a nossa leitura. Procuramos projetos em que a marca entra como parte da obra, com tempo de maturação e circulação própria.</p>
     <div class="passos quatro">
-      <div class="passo"><span class="k">Autoria</span><p><b>Assinatura clara.</b> Preferimos artistas, coletivos e instituições que já sustentam uma prática a formatos que serviriam a qualquer marca.</p></div>
-      <div class="passo"><span class="k">Território</span><p><b>Projetos que existem para o lugar onde acontecem</b> e seguem depois do evento. A marca fica associada a algo que permanece.</p></div>
-      <div class="passo"><span class="k">Ciência, cultura e regeneração</span><p><b>Cruzamentos entre esses campos sobem na nossa leitura.</b> É a fronteira em que a cooperativa trabalha.</p></div>
-      <div class="passo"><span class="k">Poucos, com argumento</span><p><b>Uma proposta traz de três a cinco projetos</b>, cada um com argumento assinado pela curadoria. Preferimos dizer por quê a entregar um catálogo.</p></div>
+      <div class="passo"><span class="k">Autoria</span><p>Artistas, coletivos e instituições com prática própria e assinatura reconhecível, em que a marca soma a algo que já existe.</p></div>
+      <div class="passo"><span class="k">Território</span><p>Projetos que nascem do lugar onde acontecem e continuam ativos depois da temporada de patrocínio.</p></div>
+      <div class="passo"><span class="k">Ciência, cultura e regeneração</span><p>Cruzamentos entre esses campos pesam mais na nossa leitura, porque é neles que a cooperativa trabalha.</p></div>
+      <div class="passo"><span class="k">Proposta curta</span><p>De três a cinco projetos, cada um com um argumento assinado pela curadoria.</p></div>
     </div>
   </section>
 </main>
@@ -128,14 +149,12 @@ a{color:var(--txt)}
 
 <script>
 (function () {
-  var brl = function (n) { return n >= 1e9 ? 'R$ ' + (n / 1e9).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' bi' : n >= 1e6 ? 'R$ ' + (n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + ' mi' : 'R$ ' + Math.round(n).toLocaleString('pt-BR'); };
   fetch('data/meta.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
     if (!m || !m.captando) return;
+    document.getElementById('b-lidos').textContent = (m.lidos || 0).toLocaleString('pt-BR');
     document.getElementById('b-capt').textContent = m.captando.toLocaleString('pt-BR');
-    var saldo = m.saldo_captando;
-    if (typeof saldo === 'number') document.getElementById('b-saldo').textContent = brl(saldo); else document.getElementById('b-saldo').parentElement.hidden = true;
     var d = new Date(m.coletado_em);
-    document.getElementById('b-data').textContent = isNaN(d) ? '' : 'Última coleta: ' + d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '.';
+    document.getElementById('b-data').textContent = isNaN(d) ? 'Registros públicos da Lei Rouanet (SALIC).' : 'Coleta de ' + d.toLocaleDateString('pt-BR') + ' nos registros públicos da Lei Rouanet (SALIC).';
     document.getElementById('base').hidden = false;
   }).catch(function () {});
 })();
