@@ -1,5 +1,5 @@
 {
-  "_nota": "Padrões comparados com o texto da situação do SALIC, sem acentos e em minúsculas. 'incluir' marca captando; 'excluir' descarta. Situações que não batem em nenhum ficam como 'indefinido' para a curadoria decidir. A distribuição real aparece em docs/data/meta.json.",
+  "_nota": "Padrões comparados com o texto da situação do SALIC, sem acentos e em minúsculas. 'incluir' marca captando; 'excluir' descarta. Situações que não batem em nenhum ficam como 'indefinido' para a curadoria decidir (na prática: projetos em análise, diligenciados ou aguardando portaria, isto é, a caminho da captação). A distribuição real aparece em docs/data/meta.json. Ajustado em 22/09/2026 com a primeira coleta (47.961 registros).",
   "incluir": [
     "captacao"
   ],
@@ -13,6 +13,14 @@
     "desist",
     "reprovad",
     "nao aprovado",
-    "recurso administrativo"
+    "recurso administrativo",
+    "expirado",
+    "nao executado",
+    "insuficiencia de captacao",
+    "suspenso",
+    "inadimplente",
+    "tomada de contas",
+    "realidade de execucao",
+    "analise preditiva"
   ]
 }
