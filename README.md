@@ -1,6 +1,6 @@
 # Creative Radar · Freequency
 
-Radar da Freequency para projetos incentivados. Nesta primeira versão: coleta noturna dos projetos da Lei Rouanet em captação, com busca por palavra e sinônimos, e exportação direta para a ferramenta Cultura.
+Radar da Freequency para projetos incentivados, no ar em https://radar.freequency.org . Nesta primeira versão: coleta noturna dos projetos da Lei Rouanet em captação, com busca por palavra e sinônimos, e exportação direta para a ferramenta Cultura.
 
 ## O que tem aqui
 
@@ -20,7 +20,7 @@ Passo a passo manual:
 1. Criar um repositório público na conta `freequencyorg` (por exemplo `creative-radar`) e subir esta pasta.
 2. Em Settings › Pages, em Source, escolher "GitHub Actions" (o workflow publica a pasta `docs` a cada coleta).
 3. Em Actions, abrir o workflow "Creative Radar" e clicar em "Run workflow". A coleta completa (quatro anos de projeto, cerca de 48 mil registros) levou 1h04 na primeira execução, em 21/09/2026.
-4. A página fica em `https://freequencyorg.github.io/creative-radar/`.
+4. A página fica em `https://radar.freequency.org/` (domínio configurado em Settings › Pages, com CNAME `radar → freequencyorg.github.io` no DNS da freequency.org; o endereço `freequencyorg.github.io/creative-radar` redireciona).
 
 Depois disso a coleta se repete sozinha toda madrugada. Se a API do SALIC estiver fora do ar, o workflow falha antes de publicar e a página continua com a coleta anterior.
 
