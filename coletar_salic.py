@@ -29,14 +29,20 @@ import urllib.request
 
 BASE_PADRAO = "https://api.salic.cultura.gov.br/api/v1"
 PAGINA = 100
+# Tetos de texto por campo. Na primeira coleta real (22/09/2026, 24.319 projetos retidos) os textos
+# somaram 93 MB com tetos maiores; estes valores mantêm o arquivo perto de 60 MB, o que a página
+# ainda carrega bem (o GitHub Pages entrega comprimido). Os textos completos ficam no SALIC.
 CAMPOS_TEXTO = {
-    "resumo": 900, "objetivos": 600, "justificativa": 500, "sinopse": 400,
-    "ficha_tecnica": 300, "estrategia_execucao": 300, "democratizacao": 300, "acessibilidade": 200,
+    "resumo": 700, "objetivos": 400, "justificativa": 320, "sinopse": 320,
+    "ficha_tecnica": 260, "estrategia_execucao": 160, "democratizacao": 200, "acessibilidade": 120,
+    "local_realizacao": 240,
 }
+# area, mecanismo e enquadramento não vêm na listagem /projetos do SALIC (só na consulta por PRONAC);
+# ficam na lista para o dia em que a API passar a devolvê-los.
 CAMPOS_COPIA = [
     "PRONAC", "nome", "proponente", "area", "segmento", "UF", "municipio", "situacao", "mecanismo",
     "enquadramento", "ano_projeto", "data_inicio", "data_termino", "valor_solicitado", "valor_aprovado",
-    "valor_projeto", "valor_captado", "valor_proposta", "outras_fontes", "local_realizacao",
+    "valor_projeto", "valor_captado", "valor_proposta", "outras_fontes",
 ]
 
 
