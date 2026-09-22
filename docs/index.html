@@ -121,13 +121,17 @@ async function carregar() {
   try {
     const [m, d, s] = await Promise.all([fetch('data/meta.json').then(r => r.json()), fetch('data/salic-captacao.json').then(r => r.json()), fetch('data/sinonimos.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
     meta = m; dados = d; sinonimos = s || {};
-    dados.forEach(p => { p._n = {}; CAMPOS.forEach(([c]) => { p._n[c] = norm(p[c]); }); });
+    // Um texto normalizado por projeto (nome primeiro, com peso maior na pontuação) em vez de dez campos: a busca com 17 termos cai de ~2 s para frações de segundo.
+    dados.forEach(p => { p._nome = norm(p.nome); p._t = p._nome + ' | ' + CAMPOS.slice(1).map(([c]) => norm(p[c])).filter(Boolean).join(' | '); });
     $('#meta').textContent = 'Coleta de ' + new Date(m.coletado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) + ' · ' + m.captando.toLocaleString('pt-BR') + ' projetos captando · anos ' + m.anos_projeto.join(', ');
     $('#fonte').textContent = m.fonte;
     $('#stats').hidden = false;
     $('#stats').innerHTML = '<div class="stat"><b>' + m.captando.toLocaleString('pt-BR') + '</b><span>projetos captando</span></div><div class="stat"><b>' + m.indefinidos.toLocaleString('pt-BR') + '</b><span>situação indefinida</span></div><div class="stat"><b>' + brl(dados.filter(p => p.classe === 'captando').reduce((s, p) => s + (p.saldo || 0), 0)) + '</b><span>saldo a captar somado</span></div><div class="stat"><b>' + m.lidos.toLocaleString('pt-BR') + '</b><span>registros lidos no SALIC</span></div>';
     const opts = (id, chave) => { const vals = Array.from(new Set(dados.map(p => p[chave]).filter(Boolean))).sort((a, b) => String(a).localeCompare(String(b), 'pt-BR')); $(id).innerHTML += vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); };
     opts('#f-uf', 'UF'); opts('#f-area', 'area'); opts('#f-seg', 'segmento');
+    // A listagem do SALIC não traz área nem enquadramento; os filtros só aparecem quando os dados tiverem o campo.
+    if (!dados.some(p => p.area)) $('#f-area').closest('.campo').hidden = true;
+    if (!dados.some(p => p.enquadramento)) $('#f-enq').closest('.campo').hidden = true;
     lerURL(); render();
   } catch (e) {
     $('#meta').textContent = 'Sem dados ainda. Rode o workflow "Creative Radar" no GitHub para a primeira coleta.';
@@ -148,9 +152,11 @@ function renderTermos(termos) {
   const box = $('#termos'); if (termos.length <= 1) { box.hidden = true; return; }
   box.hidden = false; box.innerHTML = '<span class="k">Procurando também</span>' + termos.map(t => '<span class="termo' + (termosAtivos.get(t) === false ? '' : ' on') + '" data-t="' + esc(t) + '">' + esc(t) + '</span>').join('');
 }
+const _reCache = new Map();
+function regexCurto(t) { if (t.length > 3) return null; if (!_reCache.has(t)) _reCache.set(t, new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b')); return _reCache.get(t); }
 function pontuar(p, termos) {
   let score = 0; const achados = new Set();
-  for (const t of termos) { if (termosAtivos.get(t) === false) continue; const re = t.length <= 3 ? new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b') : null; for (const [c, peso] of CAMPOS) { const v = p._n[c]; if (!v) continue; const hit = re ? re.test(v) : v.includes(t); if (hit) { score += peso; achados.add(t); } } }
+  for (const t of termos) { if (termosAtivos.get(t) === false) continue; const re = regexCurto(t); const hit = re ? re.test(p._t) : p._t.includes(t); if (!hit) continue; achados.add(t); score += 1 + ((re ? re.test(p._nome) : p._nome.includes(t)) ? 3 : 0); }
   return { score, achados };
 }
 function destacar(txt, termos) { if (!txt) return ''; let h = esc(txt); const ativos = termos.filter(t => termosAtivos.get(t) !== false && t.length > 2); if (!ativos.length) return h; const re = new RegExp('(' + ativos.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi'); return h.replace(/[̀-ͯ]/g, '').replace(re, '<mark>$1</mark>'); }
@@ -174,7 +180,7 @@ function render() {
   }).join('') || '<div class="vazio">Nenhum projeto com esses filtros.</div>';
   if (itens.length > 300) $('#lista').insertAdjacentHTML('beforeend', '<div class="vazio">Mostrando 300 de ' + itens.length + '. Refine a busca para ver o restante.</div>');
 }
-function exportar(pronacs) { const set = new Set(pronacs); return dados.filter(p => set.has(p.PRONAC)).map(p => { const o = Object.assign({}, p); delete o._n; delete o.classe; delete o.fonte; delete o.saldo; return o; }); }
+function exportar(pronacs) { const set = new Set(pronacs); return dados.filter(p => set.has(p.PRONAC)).map(p => { const o = Object.assign({}, p); delete o._t; delete o._nome; delete o.classe; delete o.fonte; delete o.saldo; return o; }); }
 async function copiarJSON() {
   const alvo = selecionados.size ? Array.from(selecionados) : visiveis.slice(0, 200);
   if (!alvo.length) { toast('Nada para copiar.'); return; }
