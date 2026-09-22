@@ -70,6 +70,40 @@ select option{background:var(--panel2)}
 .aviso b{color:var(--txt)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--accent);padding:11px 16px;font-size:13.5px;z-index:50;max-width:92vw}
 [hidden]{display:none!important}
+/* Controles de formulário no padrão da página */
+button,a,label,summary,.sel-op{-webkit-tap-highlight-color:transparent}
+.sel{position:relative;min-width:0;width:100%}
+.sel-nativo{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+.sel-btn{appearance:none;display:flex;align-items:center;width:100%;min-width:0;background-color:var(--panel2);background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;border:1px solid var(--line2);border-radius:2px;padding:12px 36px 12px 14px;color:var(--txt);font-size:16px;line-height:1.35;text-align:left;cursor:pointer;transition:border-color .15s}
+@media (min-width:720px){.sel-btn{font-size:14.5px}}
+.sel-btn:hover{border-color:var(--line3)}
+.sel-btn:focus-visible,.sel.aberto .sel-btn{outline:none;border-color:var(--accent)}
+.sel.aberto .sel-btn{background-image:linear-gradient(135deg,transparent 50%,var(--accent) 50%),linear-gradient(45deg,var(--accent) 50%,transparent 50%);background-position:calc(100% - 18px) 45%,calc(100% - 13px) 45%}
+.sel-btn.sel-vazio .sel-valor{color:var(--dim2)}
+.sel-btn[disabled]{opacity:.5;cursor:not-allowed}
+.sel-valor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sel:has(select[aria-invalid="true"]) .sel-btn{border-color:var(--red)}
+.sel-lista{position:fixed;z-index:70;display:flex;flex-direction:column;background:var(--panel2);border:1px solid var(--line3);border-radius:2px;box-shadow:0 18px 48px rgba(0,0,0,.6);padding:4px;overflow:hidden}
+.sel-lista ul{list-style:none;margin:0;padding:0;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto}
+.sel-busca{flex:none;margin:0 0 4px!important;background:var(--panel)!important;font-size:14px!important;padding:9px 11px!important}
+.sel-op{padding:10px 12px;font-size:14.5px;line-height:1.35;color:var(--dim);cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:space-between;gap:14px;user-select:none}
+.sel-op.sel-op-vazia{color:var(--dim2)}
+.sel-op.ativo{background:var(--panel3);color:var(--txt)}
+.sel-op[aria-selected="true"]{color:var(--accent);font-weight:600}
+.sel-op[aria-selected="true"]::after{content:"";flex:none;width:9px;height:5px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg) translateY(-2px)}
+.sel-nada{padding:12px;color:var(--dim2);font-size:13.5px}
+@media (pointer:coarse){.sel-op{padding:13px 12px;min-height:44px}}
+input[type=checkbox]:not(.opt input){appearance:none;-webkit-appearance:none;flex:none;width:18px;height:18px;margin:0;border:1px solid var(--line3);border-radius:2px;background:var(--panel2);display:inline-grid;place-content:center;cursor:pointer;transition:background .15s,border-color .15s}
+input[type=checkbox]:not(.opt input)::after{content:"";width:9px;height:5px;border-left:2px solid var(--accent-txt);border-bottom:2px solid var(--accent-txt);transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+input[type=checkbox]:not(.opt input):checked{background:var(--accent);border-color:var(--accent)}
+input[type=checkbox]:not(.opt input):checked::after{opacity:1}
+input[type=checkbox]:not(.opt input):hover{border-color:var(--accent)}
+input[type=checkbox]:not(.opt input):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox]:not(.opt input)[aria-invalid="true"]{border-color:var(--red)}
+input[type=date],select{color-scheme:dark}
+.barra-carga{display:flex;flex-direction:column;gap:10px;padding:32px 16px;align-items:center;color:var(--dim);font-size:13.5px}
+.barra-carga .trilho{width:min(420px,100%);height:4px}
+.barra-carga .trilho i{transition:width .2s;background:var(--accent)}
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
 @media (min-width:860px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .stat{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
@@ -105,6 +139,179 @@ details summary{cursor:pointer}
 <footer class="rodape"><span>Global creative cooperative</span><a href="../" style="color:var(--dim2);text-decoration:none">Página pública</a><span id="fonte"></span></footer>
 <div class="toast" id="toast" hidden role="status"></div>
 <script>
+/* =====================================================================
+   Seletor: lista de opções no padrão visual da página.
+   O <select> nativo continua no DOM como fonte do valor (FormData, eventos
+   change, validação); só a parte visual é substituída. Teclado: setas,
+   Home/End, Enter, Esc, Tab e busca por digitação. Listas com mais de
+   12 opções ganham um campo de filtro.
+   ===================================================================== */
+const Seletor = (function () {
+  let aberto = null, seq = 0, fechouEm = 0;
+  const normS = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  function textoSelecionado(sel) { const o = sel.options[sel.selectedIndex]; return o ? o.textContent : ''; }
+  function atualizar(inst) {
+    const t = textoSelecionado(inst.sel);
+    inst.valor.textContent = t;
+    inst.btn.classList.toggle('sel-vazio', !inst.sel.value);
+    inst.btn.disabled = inst.sel.disabled;
+  }
+  function montar(sel) {
+    if (sel.dataset.selOk) return;
+    sel.dataset.selOk = '1';
+    const id = sel.id || ('sel-auto-' + (++seq)); if (!sel.id) sel.id = id;
+    const wrap = document.createElement('div'); wrap.className = 'sel';
+    sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+    sel.classList.add('sel-nativo'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'sel-btn'; btn.id = id + '-btn';
+    btn.setAttribute('role', 'combobox'); btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', id + '-lista');
+    const valor = document.createElement('span'); valor.className = 'sel-valor'; btn.appendChild(valor);
+    const lab = document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (lab) { if (!lab.id) lab.id = id + '-rot'; lab.htmlFor = btn.id; btn.setAttribute('aria-labelledby', lab.id + ' ' + btn.id); }
+    else if (sel.getAttribute('aria-label')) btn.setAttribute('aria-label', sel.getAttribute('aria-label'));
+    wrap.appendChild(btn);
+    const inst = { sel, wrap, btn, valor, lista: null, busca: null, ativo: -1, visiveis: [], digitado: '', tDig: 0 };
+    sel._seletor = inst;
+    atualizar(inst);
+    sel.addEventListener('change', () => atualizar(inst));
+    sel.addEventListener('focus', () => btn.focus());
+    btn.addEventListener('click', () => { aberto === inst ? fechar(true) : abrir(inst); });
+    btn.addEventListener('keydown', e => teclaBotao(inst, e));
+  }
+  function opcoes(inst) { return Array.from(inst.sel.options).map((o, i) => ({ i, v: o.value, t: o.textContent, d: o.disabled })); }
+  function abrir(inst) {
+    if (inst.sel.disabled) return;
+    if (aberto) fechar(false);
+    aberto = inst;
+    const todas = opcoes(inst);
+    const lista = document.createElement('div'); lista.className = 'sel-lista'; lista.id = inst.sel.id + '-lista';
+    const ul = document.createElement('ul'); ul.setAttribute('role', 'listbox'); ul.id = inst.sel.id + '-ul';
+    if (inst.btn.getAttribute('aria-labelledby')) ul.setAttribute('aria-labelledby', inst.btn.getAttribute('aria-labelledby').split(' ')[0]);
+    if (todas.length > 12) {
+      const b = document.createElement('input'); b.type = 'search'; b.className = 'sel-busca'; b.placeholder = 'Filtrar'; b.setAttribute('aria-label', 'Filtrar opções'); b.setAttribute('aria-controls', ul.id); b.autocomplete = 'off';
+      b.addEventListener('input', () => { preencher(inst, b.value); });
+      b.addEventListener('keydown', e => teclaLista(inst, e, true));
+      lista.appendChild(b); inst.busca = b;
+    } else inst.busca = null;
+    lista.appendChild(ul); inst.lista = lista; inst.ul = ul;
+    lista.addEventListener('mousedown', e => { if (e.target !== inst.busca) e.preventDefault(); });
+    inst.wrap.appendChild(lista);
+    preencher(inst, '');
+    posicionar(inst);
+    inst.wrap.classList.add('aberto'); inst.btn.setAttribute('aria-expanded', 'true');
+    // Em telas de toque o filtro não recebe foco sozinho, para não abrir o teclado sem pedido.
+    if (inst.busca && !(window.matchMedia && matchMedia('(pointer: coarse)').matches)) inst.busca.focus();
+    rolarAtivo(inst);
+  }
+  function preencher(inst, filtro) {
+    const f = normS(filtro);
+    const todas = opcoes(inst).filter(o => !o.d && (!f || normS(o.t).includes(f)));
+    inst.visiveis = todas;
+    inst.ul.innerHTML = '';
+    todas.forEach((o, k) => {
+      const li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = inst.sel.id + '-op-' + o.i; li.className = 'sel-op' + (o.v === '' ? ' sel-op-vazia' : '');
+      li.setAttribute('aria-selected', String(o.i === inst.sel.selectedIndex)); li.textContent = o.t;
+      li.addEventListener('click', () => escolher(inst, o.i));
+      li.addEventListener('mousemove', () => { if (inst.ativo !== k) marcar(inst, k, false); });
+      inst.ul.appendChild(li);
+    });
+    if (!todas.length) { const li = document.createElement('li'); li.className = 'sel-nada'; li.textContent = 'Nenhuma opção'; inst.ul.appendChild(li); }
+    const atual = todas.findIndex(o => o.i === inst.sel.selectedIndex);
+    marcar(inst, f ? 0 : Math.max(0, atual), true);
+  }
+  function marcar(inst, k, rolar) {
+    const itens = inst.ul.querySelectorAll('.sel-op');
+    if (!itens.length) { inst.ativo = -1; return; }
+    inst.ativo = Math.max(0, Math.min(itens.length - 1, k));
+    itens.forEach((li, j) => li.classList.toggle('ativo', j === inst.ativo));
+    const alvo = inst.busca || inst.btn; alvo.setAttribute('aria-activedescendant', itens[inst.ativo].id);
+    if (rolar) rolarAtivo(inst);
+  }
+  // Rola só a lista (scrollIntoView poderia rolar a página e fechar o menu).
+  function rolarAtivo(inst) {
+    const ul = inst.ul, li = ul && ul.querySelector('.sel-op.ativo'); if (!li) return;
+    const topo = li.offsetTop - ul.offsetTop, base = topo + li.offsetHeight;
+    if (topo < ul.scrollTop) ul.scrollTop = topo; else if (base > ul.scrollTop + ul.clientHeight) ul.scrollTop = base - ul.clientHeight;
+  }
+  function posicionar(inst) {
+    const r = inst.btn.getBoundingClientRect(), L = inst.lista;
+    const abaixo = window.innerHeight - r.bottom - 12, acima = r.top - 12;
+    const paraCima = abaixo < 220 && acima > abaixo;
+    const max = Math.max(160, Math.min(340, paraCima ? acima : abaixo));
+    L.style.minWidth = r.width + 'px'; L.style.maxWidth = Math.min(Math.max(r.width, 420), window.innerWidth - 24) + 'px';
+    L.style.left = Math.min(r.left, window.innerWidth - Math.min(Math.max(r.width, 160), window.innerWidth - 24) - 12) + 'px';
+    L.style.maxHeight = max + 'px';
+    if (paraCima) { L.style.top = ''; L.style.bottom = (window.innerHeight - r.top + 4) + 'px'; L.classList.add('acima'); }
+    else { L.style.bottom = ''; L.style.top = (r.bottom + 4) + 'px'; L.classList.remove('acima'); }
+  }
+  function escolher(inst, i) {
+    const mudou = inst.sel.selectedIndex !== i;
+    inst.sel.selectedIndex = i;
+    fechar(true);
+    if (mudou) { inst.sel.dispatchEvent(new Event('input', { bubbles: true })); inst.sel.dispatchEvent(new Event('change', { bubbles: true })); }
+    atualizar(inst);
+  }
+  function fechar(focar) {
+    const inst = aberto; if (!inst) return;
+    aberto = null;
+    if (inst.lista) inst.lista.remove();
+    inst.lista = null; inst.busca = null;
+    inst.wrap.classList.remove('aberto'); inst.btn.setAttribute('aria-expanded', 'false'); inst.btn.removeAttribute('aria-activedescendant');
+    if (focar && inst.btn.isConnected) inst.btn.focus();
+  }
+  function porDigitacao(inst, ch, aplicar) {
+    clearTimeout(inst.tDig); inst.digitado += normS(ch); inst.tDig = setTimeout(() => { inst.digitado = ''; }, 700);
+    const lista = aberto === inst ? inst.visiveis : opcoes(inst).filter(o => !o.d);
+    const ini = aberto === inst ? inst.ativo + (inst.digitado.length === 1 ? 1 : 0) : 0;
+    const ordem = lista.slice(ini).concat(lista.slice(0, ini));
+    const achou = ordem.find(o => normS(o.t).startsWith(inst.digitado));
+    if (!achou) return;
+    if (aberto === inst) marcar(inst, inst.visiveis.indexOf(achou), true); else if (aplicar) escolherSemAbrir(inst, achou.i);
+  }
+  function escolherSemAbrir(inst, i) { if (inst.sel.selectedIndex === i) return; inst.sel.selectedIndex = i; inst.sel.dispatchEvent(new Event('input', { bubbles: true })); inst.sel.dispatchEvent(new Event('change', { bubbles: true })); atualizar(inst); }
+  function teclaBotao(inst, e) {
+    if (aberto === inst) { teclaLista(inst, e, false); return; }
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) { e.preventDefault(); abrir(inst); return; }
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); porDigitacao(inst, e.key, true); }
+  }
+  function teclaLista(inst, e, naBusca) {
+    const n = inst.visiveis.length;
+    switch (e.key) {
+      case 'ArrowDown': e.preventDefault(); marcar(inst, inst.ativo + 1, true); break;
+      case 'ArrowUp': e.preventDefault(); marcar(inst, inst.ativo - 1, true); break;
+      case 'PageDown': e.preventDefault(); marcar(inst, inst.ativo + 8, true); break;
+      case 'PageUp': e.preventDefault(); marcar(inst, inst.ativo - 8, true); break;
+      case 'Home': if (!naBusca) { e.preventDefault(); marcar(inst, 0, true); } break;
+      case 'End': if (!naBusca) { e.preventDefault(); marcar(inst, n - 1, true); } break;
+      case 'Enter': e.preventDefault(); if (inst.ativo >= 0 && inst.visiveis[inst.ativo]) escolher(inst, inst.visiveis[inst.ativo].i); break;
+      case ' ': if (!naBusca) { e.preventDefault(); if (inst.ativo >= 0 && inst.visiveis[inst.ativo]) escolher(inst, inst.visiveis[inst.ativo].i); } break;
+      case 'Escape': e.preventDefault(); e.stopPropagation(); fechouEm = Date.now(); fechar(true); break;
+      case 'Tab': fechar(false); break;
+      default: if (!naBusca && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); porDigitacao(inst, e.key, false); }
+    }
+  }
+  document.addEventListener('mousedown', e => { if (aberto && !aberto.wrap.contains(e.target)) fechar(false); }, true);
+  document.addEventListener('touchstart', e => { if (aberto && !aberto.wrap.contains(e.target)) fechar(false); }, { capture: true, passive: true });
+  // Rolagem da página: a lista acompanha o botão e só fecha quando ele sai da tela.
+  document.addEventListener('scroll', e => {
+    if (!aberto || !aberto.lista || aberto.lista.contains(e.target)) return;
+    const r = aberto.btn.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) fechar(false); else posicionar(aberto);
+  }, true);
+  window.addEventListener('resize', () => { if (aberto && aberto.lista) posicionar(aberto); });
+  window.addEventListener('blur', () => fechar(false));
+  return {
+    aprimorar(raiz) { (raiz || document).querySelectorAll('select:not([data-sel-ok])').forEach(montar); },
+    atualizarTodos(raiz) { (raiz || document).querySelectorAll('select[data-sel-ok]').forEach(s => s._seletor && atualizar(s._seletor)); },
+    fechar() { fechar(false); },
+    temAberto() { return !!aberto; },
+    // Esc que fechou uma lista não deve fechar também o painel em volta.
+    fechouAgora() { return Date.now() - fechouEm < 120; }
+  };
+})();
+
+</script>
+<script>
 (function () {
 'use strict';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
@@ -117,9 +324,22 @@ let dados = [], sinonimos = {}, meta = null, termosAtivos = new Map(), seleciona
 let toastTimer;
 function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 4500); }
 
+async function baixarComProgresso(url, aoProgresso) {
+  const r = await fetch(url); if (!r.ok) throw new Error('HTTP ' + r.status);
+  if (!r.body || !r.body.getReader || typeof TextDecoder === 'undefined') return r.json();
+  const leitor = r.body.getReader(), partes = []; let n = 0;
+  for (;;) { const { done, value } = await leitor.read(); if (done) break; partes.push(value); n += value.length; aoProgresso(n); }
+  const tudo = new Uint8Array(n); let o = 0; for (const p of partes) { tudo.set(p, o); o += p.length; }
+  return JSON.parse(new TextDecoder().decode(tudo));
+}
 async function carregar() {
   try {
-    const [m, d, s] = await Promise.all([fetch('../data/meta.json').then(r => r.json()), fetch('../data/salic-captacao.json').then(r => r.json()), fetch('../data/sinonimos.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+    const m = await fetch('../data/meta.json', { cache: 'no-store' }).then(r => r.json());
+    // A base tem dezenas de MB: mostra quanto já chegou, com estimativa a partir do número de projetos retidos.
+    const estimado = (m.retidos || 24000) * 2900;
+    $('#lista').innerHTML = '<div class="barra-carga" role="status"><span class="trilho"><i id="carga-i" style="width:2%"></i></span><span id="carga-t">Carregando ' + (m.retidos || 0).toLocaleString('pt-BR') + ' projetos</span></div>';
+    const progresso = n => { const i = $('#carga-i'), t = $('#carga-t'); if (!i) return; i.style.width = Math.min(98, Math.max(2, 100 * n / estimado)) + '%'; t.textContent = 'Carregando ' + (m.retidos || 0).toLocaleString('pt-BR') + ' projetos · ' + Math.round(n / 1e6) + ' MB de cerca de ' + Math.round(estimado / 1e6) + ' MB'; };
+    const [d, s] = await Promise.all([baixarComProgresso('../data/salic-captacao.json', progresso), fetch('../data/sinonimos.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
     meta = m; dados = d; sinonimos = s || {};
     // Um texto normalizado por projeto (nome primeiro, com peso maior na pontuação) em vez de dez campos: a busca com 17 termos cai de ~2 s para frações de segundo.
     dados.forEach(p => { p._nome = norm(p.nome); p._t = p._nome + ' | ' + CAMPOS.slice(1).map(([c]) => norm(p[c])).filter(Boolean).join(' | '); });
@@ -132,7 +352,7 @@ async function carregar() {
     // A listagem do SALIC não traz área nem enquadramento; os filtros só aparecem quando os dados tiverem o campo.
     if (!dados.some(p => p.area)) $('#f-area').closest('.campo').hidden = true;
     if (!dados.some(p => p.enquadramento)) $('#f-enq').closest('.campo').hidden = true;
-    lerURL(); render();
+    lerURL(); Seletor.aprimorar(document.querySelector('.filtros')); render();
   } catch (e) {
     $('#meta').textContent = 'Sem dados ainda. Rode o workflow "Creative Radar" no GitHub para a primeira coleta.';
     $('#lista').innerHTML = '<div class="vazio">A pasta data/ ainda não tem a coleta. Depois do primeiro workflow, esta página passa a funcionar.</div>';
