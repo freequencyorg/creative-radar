@@ -176,6 +176,7 @@ def main():
     os.makedirs(args.saida, exist_ok=True)
     lista = sorted(projetos.values(), key=lambda p: (p.get("classe") != "captando", -(p.get("saldo") or 0)))
     captando = sum(1 for p in lista if p["classe"] == "captando")
+    saldo_captando = round(sum((p.get("saldo") or 0) for p in lista if p["classe"] == "captando"))
     meta = {
         "coletado_em": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "fonte": "API SALIC, Ministério da Cultura",
@@ -186,6 +187,7 @@ def main():
         "retidos": len(lista),
         "captando": captando,
         "indefinidos": len(lista) - captando,
+        "saldo_captando": saldo_captando,
         "regras": regras,
         "situacoes": dict(sorted(situacoes.items(), key=lambda kv: -kv[1])),
         "erros": erros,
