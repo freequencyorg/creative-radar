@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""API do SALIC simulada para testar o coletor sem internet. Uso: python3 scripts/api_simulada.py 8765"""
+"""API do SALIC simulada para testar os coletores sem internet. Serve /projetos e
+/incentivadores. O filtro tipo_pessoa é ignorado de propósito, como acontece em
+algumas versões da API real, para o coletor ter de refazer o corte.
+Uso: python3 scripts/api_simulada.py 8765"""
 import json, random, sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -16,9 +19,25 @@ def projeto(ano, i):
 
 DADOS = {ano: [projeto(ano, i) for i in range(1, 251)] for ano in ["23", "24", "25", "26"]}
 
+def incentivador(i):
+    pj = i % 4 != 0
+    return {"nome": ("EMPRESA " if pj else "PESSOA ") + str(i), "cgccpf": (f"{i:014d}" if pj else f"{i:011d}"),
+            "tipo_pessoa": "juridica" if pj else "fisica", "municipio": "São Paulo" if i % 2 else "Recife",
+            "UF": "SP" if i % 2 else "PE", "responsavel": "  " if i % 3 else "Fulano  de   Tal",
+            "total_doado": 0.0 if i % 25 == 0 else float(i) * 800.0,
+            "_links": {"self": {"href": f"/api/v1/incentivadores/{1000 + i}"},
+                       "doacoes": {"href": f"/api/v1/incentivadores/{1000 + i}/doacoes"}}}
+
+INCENTIVADORES = [incentivador(i) for i in range(1, 251)]
+
 class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path); q = parse_qs(u.query)
+        if u.path.endswith("/incentivadores"):
+            lim = int(q.get("limit", [100])[0]); off = int(q.get("offset", [0])[0])
+            itens = INCENTIVADORES[off:off + lim]
+            corpo = json.dumps({"_embedded": {"incentivadores": itens}, "count": len(itens), "total": len(INCENTIVADORES), "_links": {}}).encode()
+            self.send_response(200); self.send_header("Content-Type", "application/hal+json"); self.end_headers(); self.wfile.write(corpo); return
         if not u.path.endswith("/projetos"): self.send_response(404); self.end_headers(); return
         ano = q.get("ano_projeto", ["26"])[0]; lim = int(q.get("limit", [100])[0]); off = int(q.get("offset", [0])[0])
         itens = DADOS.get(ano, [])[off:off + lim]

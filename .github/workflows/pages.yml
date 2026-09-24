@@ -35,6 +35,12 @@ jobs:
             curl -fsSL --retry 3 "https://radar.freequency.org/data/$f" -o "docs/data/$f" \
               || curl -fsSL --retry 3 "https://freequencyorg.github.io/creative-radar/data/$f" -o "docs/data/$f"
           done
+          # os de incentivadores só existem depois da primeira coleta deles
+          for f in incentivadores-meta.json salic-incentivadores.json; do
+            curl -fsSL --retry 3 "https://radar.freequency.org/data/$f" -o "docs/data/$f" \
+              || curl -fsSL --retry 3 "https://freequencyorg.github.io/creative-radar/data/$f" -o "docs/data/$f" \
+              || echo "ainda sem $f"
+          done
           cp config/sinonimos.json docs/data/sinonimos.json
           ls -la docs/data
       - uses: actions/configure-pages@v5

@@ -1,17 +1,18 @@
 # Creative Radar · Freequency
 
-Radar da Freequency para projetos incentivados, no ar em https://radar.freequency.org . Nesta primeira versão: coleta noturna dos projetos da Lei Rouanet em captação, com busca por palavra e sinônimos, e exportação direta para a ferramenta Cultura.
+Radar da Freequency para projetos incentivados, no ar em https://radar.freequency.org . Coleta noturna de dois lados da Lei Rouanet: os projetos em captação e as empresas que já financiaram projeto incentivado. Os dados alimentam a busca daqui e a ferramenta Cultura, em freequency.org/cultura.
 
 ## O que tem aqui
 
 - `coletar_salic.py`: lê a API pública do SALIC por ano de projeto, classifica a situação (captando, indefinido, fora), corta os textos e grava `docs/data/salic-captacao.json` e `docs/data/meta.json`. Só biblioteca padrão do Python 3.
+- `coletar_incentivadores.py`: lê a mesma API e grava `docs/data/salic-incentivadores.json` e `docs/data/incentivadores-meta.json` — nome, CNPJ, município, UF, tipo de pessoa e total doado acumulado de quem já financiou projeto incentivado. Por padrão guarda pessoas jurídicas com pelo menos R$ 1 mil doados. Vale lembrar por que a lista importa: pessoa jurídica que deduziu pela Rouanet estava no Lucro Real, já que o mecanismo não alcança Simples nem Presumido — é um retrato observado, não uma inferência de regime tributário. O histórico doação a doação fica em `/incentivadores/{id}/doacoes` e ainda não é coletado: são dezenas de milhares de chamadas e pedem um job próprio, incremental.
 - `config/situacoes.json`: padrões de inclusão e exclusão da classificação. A distribuição real das situações aparece em `meta.json` a cada coleta, para ajustar os padrões.
 - `config/sinonimos.json`: dicionário que a busca usa ("hip hop" também procura rap, breaking, grafite…). Editar aqui.
-- `.github/workflows/radar.yml` (chega como `workflow-radar.yml` na raiz quando a pasta vem pelo Claude; o `subir.sh` move para o lugar): roda todo dia às 03:00 (Brasília) e sob demanda, e publica a pasta `docs` com os dados novos direto no GitHub Pages. Os dados não são commitados: o repositório não cresce a cada coleta e não há limite de tamanho por arquivo.
+- `.github/workflows/radar.yml` (chega como `workflow-radar.yml` na raiz quando a pasta vem pelo Claude; o `subir.sh` move para o lugar): roda todo dia às 03:00 (Brasília) e sob demanda, coleta projetos e incentivadores na mesma execução e publica a pasta `docs` com os dados novos direto no GitHub Pages. As duas coletas saem juntas de propósito: cada publicação do Pages substitui a pasta inteira, então separar em dois workflows apagaria os dados de um a cada execução do outro. Os dados não são commitados: o repositório não cresce a cada coleta e não há limite de tamanho por arquivo.
 - `docs/index.html`: a home pública (Sou incentivador / Sou proponente), que leva à ferramenta Cultura. Mostra os números da última coleta.
 - `docs/curadoria/index.html`: a busca do Creative Radar, área da curadoria (radar.freequency.org/curadoria). Lê `../data/meta.json`, `../data/salic-captacao.json` e `../data/sinonimos.json`.
 - `.github/workflows/pages.yml`: publica a pasta `docs` no Pages a cada mudança em `docs/` ou no dicionário, reaproveitando a última coleta já publicada (sem nova coleta).
-- `scripts/api_simulada.py`: API falsa para testar o coletor sem internet.
+- `scripts/api_simulada.py`: API falsa para testar os coletores sem internet. Serve `/projetos` e `/incentivadores`, e ignora de propósito o filtro `tipo_pessoa`, como acontece em algumas versões da API real — assim o coletor é obrigado a refazer o corte por conta própria.
 
 ## Como colocar no ar (uma vez)
 
