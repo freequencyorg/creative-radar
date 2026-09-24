@@ -83,6 +83,23 @@ def buscar(url, tentativas=6, pausa=2.0):
     raise RuntimeError(f"falha ao ler {url}: {ultimo}")
 
 
+def ler_publicado(url, log):
+    """Lê o meta.json que já está no ar. Serve de linha de comparação para não
+    deixar uma coleta interrompida substituir uma base inteira. Falhar aqui não
+    é problema: sem referência, a coleta segue e grava."""
+    if not url:
+        return None
+    for i in range(2):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "CreativeRadar-Freequency/1.0 (+https://freequency.org)", "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except Exception as e:  # noqa: BLE001 - qualquer falha aqui só desliga a comparação
+            log(f"  sem referência da coleta publicada ({e!r})")
+            time.sleep(3)
+    return None
+
+
 def classificar(p, regras, hoje):
     """Devolve 'captando', 'indefinido' ou 'fora'."""
     sit = norm(p.get("situacao"))
@@ -118,16 +135,24 @@ def coletar(base, anos, limite, pausa, regras, ufs, log):
     projetos, situacoes, erros = {}, {}, []
     lidos = 0
     for ano in anos:
-        offset, paginas = 0, 0
+        offset, paginas, falhas = 0, 0, 0
         while True:
             params = {"ano_projeto": ano, "limit": PAGINA, "offset": offset, "format": "json"}
             url = f"{base}/projetos?{urllib.parse.urlencode(params)}"
             try:
                 dados = buscar(url)
             except RuntimeError as e:
+                # A API do SALIC sai do ar por alguns minutos de vez em quando. Antes de
+                # desistir do ano inteiro, espera e tenta a mesma página mais duas vezes.
+                falhas += 1
+                if falhas <= 2:
+                    log(f"  falha na página, esperando {60 * falhas}s para tentar de novo: {e}")
+                    time.sleep(60 * falhas)
+                    continue
                 erros.append(str(e))
                 log(f"  erro: {e}")
                 break
+            falhas = 0
             if not dados:
                 break
             itens = (dados.get("_embedded") or {}).get("projetos") or dados.get("projetos") or []
@@ -159,6 +184,8 @@ def main():
     ap.add_argument("--pausa", type=float, default=0.6, help="segundos entre páginas")
     ap.add_argument("--saida", default="docs/data")
     ap.add_argument("--config", default="config")
+    ap.add_argument("--publicado", default="https://radar.freequency.org/data/meta.json", help="coleta que já está no ar, usada como linha de comparação (vazio desliga a trava)")
+    ap.add_argument("--minimo-relativo", type=float, default=0.7, help="fração da coleta publicada abaixo da qual nada é gravado")
     args = ap.parse_args()
 
     ano_atual = dt.date.today().year
@@ -177,6 +204,16 @@ def main():
     lista = sorted(projetos.values(), key=lambda p: (p.get("classe") != "captando", -(p.get("saldo") or 0)))
     captando = sum(1 for p in lista if p["classe"] == "captando")
     saldo_captando = round(sum((p.get("saldo") or 0) for p in lista if p["classe"] == "captando"))
+    # Trava contra publicação parcial: se a API caiu no meio e a coleta veio bem menor
+    # que a que está no ar, não grava nada. O passo falha, o deploy não acontece e a
+    # base publicada continua sendo a última boa.
+    anterior = ler_publicado(args.publicado, log)
+    antes = int((anterior or {}).get("retidos") or 0)
+    if antes >= 500 and len(lista) < antes * args.minimo_relativo:
+        log(f"Coleta interrompida: {len(lista)} projetos agora contra {antes} na base publicada em {(anterior or {}).get('coletado_em')}.")
+        log(f"Erros de leitura: {len(erros)}. Nada foi gravado — a base no ar continua a anterior.")
+        return 2
+
     meta = {
         "coletado_em": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "fonte": "API SALIC, Ministério da Cultura",
