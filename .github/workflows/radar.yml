@@ -10,11 +10,11 @@ on:
         required: false
         default: ""
       somente:
-        description: "Rodar só uma das coletas. A outra reaproveita o que já está publicado."
+        description: "O que coletar agora. 'auto' = projetos todo dia, incentivadores aos domingos."
         required: false
-        default: "tudo"
+        default: "auto"
         type: choice
-        options: ["tudo", "projetos", "incentivadores"]
+        options: ["auto", "tudo", "projetos", "incentivadores"]
 
 # Os dados não entram mais no git: a coleta vira um artefato do Pages e é publicada direto.
 # Assim o repositório não cresce a cada madrugada e não há limite de 100 MB por arquivo.
@@ -30,7 +30,9 @@ concurrency:
 jobs:
   coletar:
     runs-on: ubuntu-latest
-    timeout-minutes: 170
+    # As duas coletas juntas passavam das 170 min e a rodada morria por tempo.
+    # Agora elas raramente caem no mesmo dia, e o teto ficou longe.
+    timeout-minutes: 330
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -39,36 +41,80 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # Incentivadores mudam devagar: em seis dias entraram 15 registros em 60 mil.
+      # Rodar todo dia só gastava uma hora e empurrava a rodada para o teto de tempo.
+      - name: Decidir o que coletar hoje
+        id: plano
+        run: |
+          pedido="${{ github.event.inputs.somente }}"
+          [ -z "$pedido" ] && pedido="auto"
+          projetos=sim
+          incentivadores=nao
+          case "$pedido" in
+            projetos)       incentivadores=nao ;;
+            incentivadores) projetos=nao; incentivadores=sim ;;
+            tudo)           incentivadores=sim ;;
+            auto)           [ "$(date -u +%u)" = "7" ] && incentivadores=sim ;;
+          esac
+          echo "projetos=$projetos" >> "$GITHUB_OUTPUT"
+          echo "incentivadores=$incentivadores" >> "$GITHUB_OUTPUT"
+          echo "Hoje: projetos=$projetos · incentivadores=$incentivadores (pedido: $pedido)"
+
+      # continue-on-error nas duas: quando uma recusa publicar (trava de coleta
+      # parcial) ou quebra, a outra não perde o trabalho e a página sai no ar com
+      # o melhor que existe. O passo final avisa, em vermelho, o que ficou velho.
       - name: Coletar projetos do SALIC
-        if: ${{ github.event.inputs.somente != 'incentivadores' }}
+        if: steps.plano.outputs.projetos == 'sim'
+        continue-on-error: true
         run: |
           if [ -n "${{ github.event.inputs.anos }}" ]; then
             python3 coletar_salic.py --anos ${{ github.event.inputs.anos }}
           else
             python3 coletar_salic.py
           fi
+
       - name: Coletar incentivadores do SALIC
-        if: ${{ github.event.inputs.somente != 'projetos' }}
+        if: steps.plano.outputs.incentivadores == 'sim'
+        continue-on-error: true
         run: python3 coletar_incentivadores.py
-      - name: Reaproveitar a coleta que não rodou agora
+
+      - name: Reaproveitar o que não foi coletado agora
+        id: reuso
         run: |
           mkdir -p docs/data
+          velhos=""
           baixar() {
             [ -s "docs/data/$1" ] && return 0
             curl -fsSL --retry 3 "https://radar.freequency.org/data/$1" -o "docs/data/$1" \
               || curl -fsSL --retry 3 "https://freequencyorg.github.io/creative-radar/data/$1" -o "docs/data/$1" \
-              || echo "ainda sem $1"
+              || { echo "ainda sem $1"; return 0; }
+            velhos="$velhos $1"
           }
           for f in meta.json salic-captacao.json incentivadores-meta.json salic-incentivadores.json; do baixar "$f"; done
+          echo "velhos=$(echo $velhos)" >> "$GITHUB_OUTPUT"
+          [ -n "$velhos" ] && echo "Reaproveitado do que já estava no ar:$velhos" || echo "Tudo coletado agora."
+
       - name: Copiar dicionário de sinônimos para a página
         run: cp config/sinonimos.json docs/data/sinonimos.json
+
       - name: Resumo da coleta
         run: |
           python3 -c "import json;m=json.load(open('docs/data/meta.json'));print({k:m.get(k) for k in ('coletado_em','lidos','retidos','captando','indefinidos','erros')})"
           python3 -c "import json,os;p='docs/data/incentivadores-meta.json';m=json.load(open(p)) if os.path.exists(p) else {};print({k:m.get(k) for k in ('coletado_em','lidos','retidos','total_doado','erros')})"
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
       - id: deploy
         uses: actions/deploy-pages@v4
+
+      # Marca a rodada em vermelho quando alguma base ficou com a versão antiga.
+      # A página já foi publicada antes disto: o vermelho é aviso, não perda.
+      - name: Avisar se alguma base ficou com a versão anterior
+        if: steps.reuso.outputs.velhos != ''
+        run: |
+          echo "A página foi publicada, mas estas bases são as de antes:${{ steps.reuso.outputs.velhos }}"
+          echo "Causas comuns: a API do SALIC caiu no meio, ou a trava barrou uma coleta parcial."
+          exit 1

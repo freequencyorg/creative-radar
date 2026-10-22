@@ -204,11 +204,17 @@ def main():
         t = r.get("tipo_pessoa") or "indefinido"
         por_tipo[t] = por_tipo.get(t, 0) + 1
 
-    # Mesma trava dos projetos: coleta bem menor que a publicada não substitui nada.
+    # Mesma trava dos projetos, e pela mesma razão: o total lido é o sinal firme.
     anterior = ler_publicado(args.publicado, log)
-    antes = int((anterior or {}).get("retidos") or 0)
-    if antes >= 500 and len(lista) < antes * args.minimo_relativo:
-        log(f"Coleta interrompida: {len(lista)} incentivadores agora contra {antes} na base publicada em {(anterior or {}).get('coletado_em')}.")
+    antes_lidos = int((anterior or {}).get("lidos") or 0)
+    antes_retidos = int((anterior or {}).get("retidos") or 0)
+    motivo = ""
+    if antes_lidos >= 1000 and lidos < antes_lidos * args.minimo_relativo:
+        motivo = f"{lidos} incentivadores lidos agora contra {antes_lidos} na coleta publicada"
+    elif antes_retidos >= 500 and len(lista) < antes_retidos * args.minimo_relativo:
+        motivo = f"{len(lista)} incentivadores guardados agora contra {antes_retidos} na coleta publicada"
+    if motivo:
+        log(f"Coleta interrompida: {motivo} em {(anterior or {}).get('coletado_em')}.")
         log(f"Erros de leitura: {len(erros)}. Nada foi gravado — a base no ar continua a anterior.")
         return 2
 

@@ -207,10 +207,20 @@ def main():
     # Trava contra publicação parcial: se a API caiu no meio e a coleta veio bem menor
     # que a que está no ar, não grava nada. O passo falha, o deploy não acontece e a
     # base publicada continua sendo a última boa.
+    #
+    # O sinal firme é o total LIDO da API. A quantidade guardada encolhe sozinha com o
+    # tempo, porque projeto fecha captação, então comparar só ela deixa passar coleta
+    # pela metade e ainda rebaixa a referência da próxima comparação.
     anterior = ler_publicado(args.publicado, log)
-    antes = int((anterior or {}).get("retidos") or 0)
-    if antes >= 500 and len(lista) < antes * args.minimo_relativo:
-        log(f"Coleta interrompida: {len(lista)} projetos agora contra {antes} na base publicada em {(anterior or {}).get('coletado_em')}.")
+    antes_lidos = int((anterior or {}).get("lidos") or 0)
+    antes_retidos = int((anterior or {}).get("retidos") or 0)
+    motivo = ""
+    if antes_lidos >= 1000 and lidos < antes_lidos * args.minimo_relativo:
+        motivo = f"{lidos} projetos lidos agora contra {antes_lidos} na coleta publicada"
+    elif antes_retidos >= 500 and len(lista) < antes_retidos * args.minimo_relativo:
+        motivo = f"{len(lista)} projetos guardados agora contra {antes_retidos} na coleta publicada"
+    if motivo:
+        log(f"Coleta interrompida: {motivo} em {(anterior or {}).get('coletado_em')}.")
         log(f"Erros de leitura: {len(erros)}. Nada foi gravado — a base no ar continua a anterior.")
         return 2
 
