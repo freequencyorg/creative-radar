@@ -16,8 +16,7 @@ on:
         type: choice
         options: ["auto", "tudo", "projetos", "incentivadores"]
 
-# Os dados não entram mais no git: a coleta vira um artefato do Pages e é publicada direto.
-# Assim o repositório não cresce a cada madrugada e não há limite de 100 MB por arquivo.
+# Os dados não entram no git: a coleta vira um artefato do Pages e é publicada direto.
 permissions:
   contents: read
   pages: write
@@ -30,8 +29,6 @@ concurrency:
 jobs:
   coletar:
     runs-on: ubuntu-latest
-    # As duas coletas juntas passavam das 170 min e a rodada morria por tempo.
-    # Agora elas raramente caem no mesmo dia, e o teto ficou longe.
     timeout-minutes: 330
     environment:
       name: github-pages
@@ -61,10 +58,11 @@ jobs:
           echo "incentivadores=$incentivadores" >> "$GITHUB_OUTPUT"
           echo "Hoje: projetos=$projetos · incentivadores=$incentivadores (pedido: $pedido)"
 
-      # continue-on-error nas duas: quando uma recusa publicar (trava de coleta
-      # parcial) ou quebra, a outra não perde o trabalho e a página sai no ar com
-      # o melhor que existe. O passo final avisa, em vermelho, o que ficou velho.
+      # continue-on-error deixa a rodada seguir quando uma coleta recusa publicar
+      # ou quebra. O resultado verdadeiro fica em steps.<id>.outcome; o conclusion
+      # vira "success" de qualquer jeito, então é o outcome que vale daqui para a frente.
       - name: Coletar projetos do SALIC
+        id: proj
         if: steps.plano.outputs.projetos == 'sim'
         continue-on-error: true
         run: |
@@ -75,46 +73,76 @@ jobs:
           fi
 
       - name: Coletar incentivadores do SALIC
+        id: inc
         if: steps.plano.outputs.incentivadores == 'sim'
         continue-on-error: true
         run: python3 coletar_incentivadores.py
 
-      - name: Reaproveitar o que não foi coletado agora
-        id: reuso
+      # Publicar só faz sentido quando alguma coleta trouxe dado novo. Sem isso, a
+      # rodada para aqui e a página continua exatamente como está — que é melhor do
+      # que rebaixá-la para uma cópia antiga.
+      - name: Vale publicar?
+        id: vale
+        run: |
+          fresco=nao
+          [ "${{ steps.proj.outcome }}" = "success" ] && [ -s docs/data/meta.json ] && fresco=sim
+          [ "${{ steps.inc.outcome }}" = "success" ] && [ -s docs/data/incentivadores-meta.json ] && fresco=sim
+          echo "fresco=$fresco" >> "$GITHUB_OUTPUT"
+          if [ "$fresco" = "nao" ]; then
+            echo "Nenhuma coleta trouxe dado novo. A página fica como está." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Completa o que não foi coletado agora com o que já está publicado. O
+      # parâmetro de tempo evita pegar cópia velha guardada no CDN, que foi o que
+      # jogou a base de volta para setembro em 23/10.
+      - name: Completar com o que já está publicado
+        if: steps.vale.outputs.fresco == 'sim'
         run: |
           mkdir -p docs/data
-          velhos=""
+          agora=$(date -u +%s)
           baixar() {
             [ -s "docs/data/$1" ] && return 0
-            curl -fsSL --retry 3 "https://radar.freequency.org/data/$1" -o "docs/data/$1" \
-              || curl -fsSL --retry 3 "https://freequencyorg.github.io/creative-radar/data/$1" -o "docs/data/$1" \
-              || { echo "ainda sem $1"; return 0; }
-            velhos="$velhos $1"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "https://radar.freequency.org/data/$1?t=$agora" -o "docs/data/$1" \
+              || echo "ainda sem $1"
           }
           for f in meta.json salic-captacao.json incentivadores-meta.json salic-incentivadores.json; do baixar "$f"; done
-          echo "velhos=$(echo $velhos)" >> "$GITHUB_OUTPUT"
-          [ -n "$velhos" ] && echo "Reaproveitado do que já estava no ar:$velhos" || echo "Tudo coletado agora."
 
       - name: Copiar dicionário de sinônimos para a página
+        if: steps.vale.outputs.fresco == 'sim'
         run: cp config/sinonimos.json docs/data/sinonimos.json
 
       - name: Resumo da coleta
+        if: steps.vale.outputs.fresco == 'sim'
         run: |
-          python3 -c "import json;m=json.load(open('docs/data/meta.json'));print({k:m.get(k) for k in ('coletado_em','lidos','retidos','captando','indefinidos','erros')})"
-          python3 -c "import json,os;p='docs/data/incentivadores-meta.json';m=json.load(open(p)) if os.path.exists(p) else {};print({k:m.get(k) for k in ('coletado_em','lidos','retidos','total_doado','erros')})"
+          python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, os
+          for titulo, arq in (("Projetos", "meta.json"), ("Incentivadores", "incentivadores-meta.json")):
+              caminho = os.path.join("docs/data", arq)
+              if not os.path.exists(caminho):
+                  print(f"- **{titulo}**: sem arquivo")
+                  continue
+              m = json.load(open(caminho))
+              print(f"- **{titulo}**: coleta de {m.get('coletado_em')} · {m.get('lidos')} lidos · {m.get('retidos')} guardados · {len(m.get('erros') or [])} erros")
+          PY
 
       - uses: actions/configure-pages@v5
+        if: steps.vale.outputs.fresco == 'sim'
       - uses: actions/upload-pages-artifact@v3
+        if: steps.vale.outputs.fresco == 'sim'
         with:
           path: docs
       - id: deploy
+        if: steps.vale.outputs.fresco == 'sim'
         uses: actions/deploy-pages@v4
 
-      # Marca a rodada em vermelho quando alguma base ficou com a versão antiga.
-      # A página já foi publicada antes disto: o vermelho é aviso, não perda.
-      - name: Avisar se alguma base ficou com a versão anterior
-        if: steps.reuso.outputs.velhos != ''
+      # Vermelho só quando uma coleta que era para rodar não rodou. Incentivadores
+      # reaproveitados num dia de semana são o plano, não um problema.
+      - name: Avisar se alguma coleta planejada falhou
+        if: (steps.plano.outputs.projetos == 'sim' && steps.proj.outcome != 'success') || (steps.plano.outputs.incentivadores == 'sim' && steps.inc.outcome != 'success')
         run: |
-          echo "A página foi publicada, mas estas bases são as de antes:${{ steps.reuso.outputs.velhos }}"
-          echo "Causas comuns: a API do SALIC caiu no meio, ou a trava barrou uma coleta parcial."
+          echo "### Coleta incompleta" >> "$GITHUB_STEP_SUMMARY"
+          echo "- projetos: planejado=${{ steps.plano.outputs.projetos }} resultado=${{ steps.proj.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- incentivadores: planejado=${{ steps.plano.outputs.incentivadores }} resultado=${{ steps.inc.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Causas comuns: a API do SALIC caiu no meio, ou a trava barrou uma coleta parcial." >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
           exit 1
