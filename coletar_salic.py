@@ -35,7 +35,6 @@ PAGINA = 100
 CAMPOS_TEXTO = {
     "resumo": 700, "objetivos": 400, "justificativa": 320, "sinopse": 320,
     "ficha_tecnica": 260, "estrategia_execucao": 160, "democratizacao": 200, "acessibilidade": 120,
-    "local_realizacao": 240,
 }
 # area, mecanismo e enquadramento não vêm na listagem /projetos do SALIC (só na consulta por PRONAC);
 # ficam na lista para o dia em que a API passar a devolvê-los.
@@ -123,6 +122,22 @@ def enxugar(p, classe):
         if isinstance(v, str) and v.strip():
             v = re.sub(r"\s+", " ", v).strip()
             out[campo] = v if len(v) <= teto else v[: teto - 1].rstrip() + "…"
+    # Onde o projeto acontece, que não é onde o proponente tem sede. O SALIC manda
+    # uma lista de objetos; aqui vira [[UF, município], ...] para caber na página.
+    # Na coleta de 22/09, 7.298 projetos aconteciam em mais de uma cidade e 1.915
+    # fora da UF da sede: sem este campo, o cruzamento por território errava neles.
+    locais = []
+    for item in p.get("local_realizacao") or []:
+        if not isinstance(item, dict):
+            continue
+        uf = str(item.get("sigla_uf") or "").strip().upper()
+        mun = re.sub(r"\s+", " ", str(item.get("municipio") or "")).strip()
+        if len(uf) == 2 and mun and [uf, mun] not in locais:
+            locais.append([uf, mun])
+        if len(locais) >= 40:
+            break
+    if locais:
+        out["local_realizacao"] = locais
     aprovado, captado = numero(p.get("valor_aprovado")), numero(p.get("valor_captado"))
     out["saldo"] = round(max(0.0, aprovado - captado)) if aprovado else None
     out["classe"] = classe
